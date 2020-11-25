@@ -25,4 +25,12 @@ class BlogController extends AbstractController  // ma classe herite de cotrolle
              return $this->render('blog/home.html.twig');  // this.... pour appelé le fichier à afficher
      }
 
+      /**
+     * @Route("/blog/article/12",name="blog_show")   lier la fonction à une adresse
+     */
+     public function show(){
+        return $this->render('blog/show.html.twig');
+     }
+
+
 }
