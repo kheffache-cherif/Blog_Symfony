@@ -4,7 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Repository\ArticleRepository;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,6 +36,50 @@ class BlogController extends AbstractController  // ma classe herite de cotrolle
              return $this->render('blog/home.html.twig');  // this.... pour appelé le fichier à afficher
      }
 
+
+    
+    /** 
+     * @Route("/blog/new", name="blog_createArticle")
+     * @Route("/blog/{id}/edit",name="blog_blog_edit")  //pour la mise à jour de l'article
+     */
+        //confusion entre new et {id} c'est por ce la on remonte cette fonction avant 
+    //public function createArticle(Request $request,EntityManagerInterface  $manager){
+        public function form(Article $article = null,
+         Request $request,EntityManagerInterface  $manager){
+             if(!$article){
+        $article = new Article();
+             }
+
+        $form = $this->createFormBuilder($article)
+                     ->add('title')
+                     ->add('content')
+                     ->add('image')
+                     //->add('save',SubmitType::class,['label' =>'Enregister'] )
+                     ->getForm();
+
+
+            //gestion donner formulaire
+        $form->handleRequest($request);
+           // dump($article); 
+           //si le formulaire est soumis et si il est valide
+           if($form->isSubmitted() && $form->isValid()) {
+               if(!$article->getId()){
+                     // si mon article existe pas de date // si il a un id donc il existe
+               $article->setceatedAt(new \ DateTime());
+
+               }
+               $manager->persist($article);
+               $manager->flush();
+               return $this->redirectToRoute('blog_show',['id' =>$article->getId()]);
+           }
+
+        return $this->render('blog/createArticle.html.twig',[
+               'formArticle'=>$form->createView(),
+               'editMode'=> $article->getId()  !==null  //si id est vide    
+    ]);
+    }
+
+
       /**
      * @Route("/blog/{id}",name="blog_show")   lier la fonction à une adresse
      */
@@ -42,7 +90,7 @@ class BlogController extends AbstractController  // ma classe herite de cotrolle
          return $this->render('blog/show.html.twig',[
             'article'=> $article
         ]);
-     }
-
+   
+         }
 
 }
