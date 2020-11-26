@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,16 +51,16 @@ class BlogController extends AbstractController  // ma classe herite de cotrolle
         $article = new Article();
              }
 
-        $form = $this->createFormBuilder($article)
+       /* $form = $this->createFormBuilder($article)  //creer un formulaire
                      ->add('title')
                      ->add('content')
                      ->add('image')
                      //->add('save',SubmitType::class,['label' =>'Enregister'] )
-                     ->getForm();
+                     ->getForm();*//*   creation d'un formulaire via terminal*/ 
 
-
+        $form = $this->createForm(ArticleType::class, $article);
             //gestion donner formulaire
-        $form->handleRequest($request);
+        $form->handleRequest($request);// demander au formulaire d'analyser la requete
            // dump($article); 
            //si le formulaire est soumis et si il est valide
            if($form->isSubmitted() && $form->isValid()) {
@@ -68,14 +69,14 @@ class BlogController extends AbstractController  // ma classe herite de cotrolle
                $article->setceatedAt(new \ DateTime());
 
                }
-               $manager->persist($article);
+               $manager->persist($article);  // demander au manager de l'enregister dans la base de donner
                $manager->flush();
-               return $this->redirectToRoute('blog_show',['id' =>$article->getId()]);
+               return $this->redirectToRoute('blog_show',['id' =>$article->getId()]);  //faire une redirection vert la page
            }
 
         return $this->render('blog/createArticle.html.twig',[
-               'formArticle'=>$form->createView(),
-               'editMode'=> $article->getId()  !==null  //si id est vide    
+               'formArticle' => $form->createView(),
+               'editMode' => $article->getId()  !==null  //si id est vide    
     ]);
     }
 
